@@ -3,7 +3,6 @@ package scenes;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
-import flixel.graphics.frames.FlxFrame;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import singletons.GameManager;
@@ -52,6 +51,7 @@ class PlayState extends FlxState
 	{
 		super.update(elapsed);
 
+		// input check
 		if (FlxG.keys.justPressed.SPACE)
 		{
 			Messenger.Instance.OnSpace.dispatch();
@@ -73,7 +73,9 @@ class PlayState extends FlxState
 	}
 
 	// callbacks
-	private function changeGameboyState(?_)
+	// tween passes itself through first, if you want additional args you have to
+	// lambda in the callback and then pass the func through the lambda
+	private function changeGameboyState(tween:FlxTween)
 	{
 		isGameboyOut = !isGameboyOut;
 		trace(isGameboyOut);
