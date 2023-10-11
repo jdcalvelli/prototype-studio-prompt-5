@@ -3,8 +3,10 @@ package scenes;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
+import flixel.math.FlxRandom;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
+import flixel.util.FlxTimer;
 import singletons.GameManager;
 import singletons.Messenger;
 
@@ -14,6 +16,10 @@ class PlayState extends FlxState
 	// its decoupled from objects bc of the way i did this
 	// i dont like that, i'll do it better next time
 	var isGameboyOut:Bool = true;
+	var isCatchPhase:Bool = false;
+
+	// global timers
+	var momPotentialTimer:FlxTimer = new FlxTimer();
 
 	// sprites dict
 	var spriteDict:Map<String, FlxSprite> = [
@@ -43,13 +49,25 @@ class PlayState extends FlxState
 			add(sprite);
 		}
 
+		// timer start
+		momPotentialTimer.start(3, onMomPotentialTimerComplete, 0);
+
 		// global signals subscription
+		// this was overkill but it would have made sense if i coded this right
 		Messenger.Instance.OnSpace.add(this.onSpaceSignal);
 	}
 
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
+
+		if (isGameboyOut && isCatchPhase)
+		{
+			FlxG.camera.shake(0.1, 0.5, () ->
+			{
+				FlxG.switchState(new scenes.GameOverState());
+			});
+		}
 
 		// input check
 		if (FlxG.keys.justPressed.SPACE)
@@ -68,7 +86,7 @@ class PlayState extends FlxState
 		}, 0.75, {
 			type: FlxTweenType.ONESHOT,
 			ease: FlxEase.sineInOut,
-			onComplete: changeGameboyState,
+			onStart: changeGameboyState,
 		});
 	}
 
@@ -79,5 +97,36 @@ class PlayState extends FlxState
 	{
 		isGameboyOut = !isGameboyOut;
 		trace(isGameboyOut);
+	}
+
+	private function onMomPotentialTimerComplete(timer:FlxTimer)
+	{
+		trace("mom potential fired");
+		momPotentialTimer.active = false;
+		spriteDict["door"].animation.frameIndex = 1;
+		var subtimer:FlxTimer = new FlxTimer();
+		subtimer.start(1, (?_) ->
+		{
+			// random check to see if we go into catch phase
+			// if not go back to the initial timer
+			if (new FlxRandom().bool(30))
+			{
+				isCatchPhase = true;
+				momPotentialTimer.active = false;
+				spriteDict["door"].animation.frameIndex = 2;
+				var subtimer:FlxTimer = new FlxTimer();
+				subtimer.start(1, (?_) ->
+				{
+					isCatchPhase = false;
+					momPotentialTimer.active = true;
+					spriteDict["door"].animation.frameIndex = 0;
+				}, 1);
+			}
+			else
+			{
+				momPotentialTimer.active = true;
+				spriteDict["door"].animation.frameIndex = 0;
+			}
+		}, 1);
 	}
 }
