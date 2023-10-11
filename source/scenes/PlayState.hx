@@ -4,6 +4,7 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.math.FlxRandom;
+import flixel.sound.FlxSound;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxTimer;
@@ -32,9 +33,15 @@ class PlayState extends FlxState
 		"door" => new FlxSprite().loadGraphic(AssetPaths.door_spritesheet__png, true, 640, 360),
 	];
 
+	// sound
+	var gameboySFX:FlxSound = new FlxSound().loadStream(AssetPaths.bit_loop__wav, true);
+
 	override public function create()
 	{
 		super.create();
+
+		gameboySFX.volume = 0.1;
+		gameboySFX.play();
 
 		// gameboy animation
 		spriteDict["gameboy"].animation.add("default", [0, 1], 12);
@@ -65,6 +72,7 @@ class PlayState extends FlxState
 		{
 			FlxG.camera.shake(0.1, 0.5, () ->
 			{
+				gameboySFX.kill();
 				FlxG.switchState(new scenes.GameOverState());
 			});
 		}
@@ -96,6 +104,13 @@ class PlayState extends FlxState
 	private function changeGameboyState(tween:FlxTween)
 	{
 		isGameboyOut = !isGameboyOut;
+		switch isGameboyOut
+		{
+			case true:
+				gameboySFX.fadeIn(1, 0, 0.1);
+			case false:
+				gameboySFX.fadeOut(1, 0);
+		}
 		trace(isGameboyOut);
 	}
 
@@ -109,7 +124,7 @@ class PlayState extends FlxState
 		{
 			// random check to see if we go into catch phase
 			// if not go back to the initial timer
-			if (new FlxRandom().bool(30))
+			if (new FlxRandom().bool(50))
 			{
 				isCatchPhase = true;
 				momPotentialTimer.active = false;
