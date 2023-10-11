@@ -4,6 +4,8 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.graphics.frames.FlxFrame;
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
 import singletons.GameManager;
 import singletons.Messenger;
 
@@ -53,6 +55,14 @@ class PlayState extends FlxState
 
 	private function onSpaceSignal()
 	{
-		trace("signal bussed");
+		// haxe ternary operator
+		var tweenLocation:Int = spriteDict["gameboy"].y == 0 ? 128 : 0;
+
+		FlxTween.tween(spriteDict["gameboy"], {
+			y: tweenLocation,
+		}, 0.75, {
+			type: FlxTweenType.ONESHOT,
+			ease: FlxEase.sineInOut,
+		});
 	}
 }
