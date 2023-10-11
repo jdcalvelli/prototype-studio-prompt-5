@@ -11,6 +11,11 @@ import singletons.Messenger;
 
 class PlayState extends FlxState
 {
+	// state
+	// its decoupled from objects bc of the way i did this
+	// i dont like that, i'll do it better next time
+	var isGameboyOut:Bool = true;
+
 	// sprites dict
 	var spriteDict:Map<String, FlxSprite> = [
 		"background" => new FlxSprite().loadGraphic(AssetPaths.Background__PNG),
@@ -63,6 +68,14 @@ class PlayState extends FlxState
 		}, 0.75, {
 			type: FlxTweenType.ONESHOT,
 			ease: FlxEase.sineInOut,
+			onComplete: changeGameboyState,
 		});
+	}
+
+	// callbacks
+	private function changeGameboyState(?_)
+	{
+		isGameboyOut = !isGameboyOut;
+		trace(isGameboyOut);
 	}
 }
