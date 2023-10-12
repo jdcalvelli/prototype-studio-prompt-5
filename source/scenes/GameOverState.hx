@@ -10,7 +10,7 @@ class GameOverState extends FlxState
 	{
 		super.create();
 
-		var text:FlxText = new FlxText(32, 64, 0, "plz no law\na prototype by jd calvelli", 32);
+		var text:FlxText = new FlxText(32, 64, 0, "plz no law school\na prototype by jd calvelli", 32);
 		add(text);
 	}
 
