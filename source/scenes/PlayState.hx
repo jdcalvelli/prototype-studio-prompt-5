@@ -19,6 +19,9 @@ class PlayState extends FlxState
 	var isGameboyOut:Bool = true;
 	var isCatchPhase:Bool = false;
 
+	// stop space bar press if you start one
+	var isTweening:Bool = false;
+
 	// global timers
 	var momPotentialTimer:FlxTimer = new FlxTimer();
 
@@ -80,7 +83,7 @@ class PlayState extends FlxState
 		// input check
 		if (FlxG.keys.justPressed.SPACE)
 		{
-			Messenger.Instance.OnSpace.dispatch();
+			!isTweening ? Messenger.Instance.OnSpace.dispatch() : return;
 		}
 	}
 
@@ -94,7 +97,15 @@ class PlayState extends FlxState
 		}, 0.75, {
 			type: FlxTweenType.ONESHOT,
 			ease: FlxEase.sineInOut,
-			onStart: changeGameboyState,
+			onStart: (?_) ->
+			{
+				isTweening = true;
+				changeGameboyState(_);
+			},
+			onComplete: (?_) ->
+			{
+				isTweening = false;
+			}
 		});
 	}
 
